@@ -284,6 +284,37 @@ uv run python test_client.py
 
 ---
 
+### ex1001 — 패키지(상대 import) 예제
+
+`ex1001`은 `__init__.py`가 있는 **패키지**이고, `app.py`가 `from .page86 import ...`처럼 **상대 import**를 씁니다.
+그래서 다른 예제와 반대로 **저장소 루트에서 패키지로 실행**해야 합니다(규칙 ②의 예외).
+
+```powershell
+# ❌ 파일 경로로 실행 → ImportError: attempted relative import with no known parent package
+uv run python ex1001\app.py
+
+# ✅ 저장소 루트에서 실행
+uv run python -c "from ex1001 import main; main()"
+```
+
+`ex1001\__main__.py`를 아래처럼 만들어 두면 더 짧게 실행할 수 있습니다.
+
+```python
+from .app import main
+
+main()
+```
+
+```powershell
+uv run python -m ex1001
+```
+
+- 실행 순서: `__init__.py`(패키지 초기화, 한 번만 실행) → `__main__.py`(시작점) → `main()`
+- `uv run python -m ex1001.app`은 쓰지 마세요. `__init__.py`가 이미 `app`을 import한 상태라 `RuntimeWarning`이 뜨고 모듈이 두 번 로드됩니다.
+- 출력 중 `에러 발생: 1 validation error for User`는 pydantic 검증 실패를 보여주는 **의도된 예제 출력**입니다.
+
+---
+
 ## 4. LangGraph Studio(`langgraph dev`) 사용하기
 
 `langgraph.json`이 있는 챕터(CHAP6, CHAP7)에서 그래프를 시각화하고 대화형으로 테스트할 수 있습니다. 책 6.2.5절을 참고하세요.
@@ -331,3 +362,5 @@ uv run langgraph dev
 | CHAP7 7.5 DB 검색 결과가 비어 있음 | Chroma DB를 만들지 않음 | `setup_documents.py`를 챕터 루트에서 실행 |
 | `make_graph.py`를 실행해도 아무 출력이 없음 | `__main__` 블록이 없는 파일 | `uv run langgraph dev`로 실행 |
 | `langraph: command not found` | 명령어 오타 | `langgraph`로 입력 |
+| `ImportError: attempted relative import with no known parent package` | 상대 import를 쓰는 파일을 경로로 직접 실행함 (예: `ex1001\app.py`) | 저장소 루트에서 패키지로 실행 ([ex1001](#ex1001--패키지상대-import-예제)) |
+| ``warning: `VIRTUAL_ENV=...anaconda3` does not match the project environment path `.venv` `` | conda 환경이 활성화된 터미널에서 `uv run` 실행 | 무시해도 됨(uv는 `.venv` 사용). 거슬리면 `conda deactivate` |
