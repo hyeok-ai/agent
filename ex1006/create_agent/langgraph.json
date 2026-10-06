@@ -1,0 +1,7 @@
+{
+    "dependencies": ["./"],
+    "graphs": {
+        "agent": "./middleware_with_node.py:agent"
+    },
+    "env": ".env"
+}
